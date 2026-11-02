@@ -7,7 +7,11 @@ const geistSans = Geist({
 });
 
 export const metadata = {
-  title: "LoadWise",
+  // Each page can set its own title, e.g. "Carriers · LoadWise"
+  title: {
+    default: "LoadWise",
+    template: "%s · LoadWise",
+  },
   description:
     "Smart Load Matching & Dispatch Management System for Small Trucking Carriers",
 };
