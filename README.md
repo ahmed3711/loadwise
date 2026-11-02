@@ -19,8 +19,8 @@ through to invoices.
 
 ## Tech stack
 
-- **Frontend:** Next.js (App Router, JavaScript) + Tailwind CSS
-- **Backend & database:** Supabase (PostgreSQL, Auth, Row Level Security)
+- **Frontend:** Next.js 16 (App Router, JavaScript) + Tailwind CSS
+- **Backend & database:** Supabase (PostgreSQL, Auth, Row Level Security) via `@supabase/ssr`
 - **Validation:** React Hook Form + Zod
 - **Version control & hosting:** GitHub + Vercel
 
@@ -35,7 +35,7 @@ through to invoices.
 4. Create a `.env.local` file in the project folder (never upload this file):
    ```
    NEXT_PUBLIC_SUPABASE_URL=your-project-url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
    ```
 5. Start the app and open http://localhost:3000:
    ```
@@ -47,8 +47,8 @@ through to invoices.
 | # | Feature | Status |
 |---|---------|--------|
 | 1 | Tools, Next.js app, first GitHub push | ✅ Done |
-| 2 | Supabase connection + test page | ⬜ Next |
-| 3 | Database tables + Row Level Security | ⬜ |
+| 2 | Supabase connection + test page | ✅ Done |
+| 3 | Database tables + Row Level Security | ⬜ Next |
 | 4 | Sign-up / login / logout with roles and validation | ⬜ |
 | 5 | Layout (sidebar, top bar) and page protection | ⬜ |
 | 6 | Carriers (add, view, edit, delete) | ⬜ |
