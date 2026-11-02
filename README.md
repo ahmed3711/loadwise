@@ -48,8 +48,8 @@ through to invoices.
 |---|---------|--------|
 | 1 | Tools, Next.js app, first GitHub push | ✅ Done |
 | 2 | Supabase connection + test page | ✅ Done |
-| 3 | Database tables + Row Level Security | ⬜ Next |
-| 4 | Sign-up / login / logout with roles and validation | ⬜ |
+| 3 | Database tables + Row Level Security | ✅ Done |
+| 4 | Sign-up / login / logout with roles and validation | ⬜ Next |
 | 5 | Layout (sidebar, top bar) and page protection | ⬜ |
 | 6 | Carriers (add, view, edit, delete) | ⬜ |
 | 7 | Vehicles (add, view, edit, delete) | ⬜ |
