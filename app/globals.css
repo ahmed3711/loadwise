@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+/* LoadWise colour theme (taken from the project presentation) */
+@theme inline {
+  --color-navy: #1f2a36;        /* main dark colour (sidebar, headings) */
+  --color-navy-light: #2b3a4a;  /* lighter navy for hover states */
+  --color-brand: #f5a623;       /* amber accent (buttons, highlights) */
+  --color-brand-soft: #fdf1dc;  /* very light amber (badges, notices) */
+  --color-surface: #f4f6f8;     /* page background */
+  --color-line: #dce3ea;        /* borders */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-navy);
+}
