@@ -30,6 +30,7 @@ export default function SignupPage() {
     defaultValues: {
       fullName: "",
       email: "",
+      confirmEmail: "",
       age: "",
       phone: "",
       role: "",
@@ -111,6 +112,18 @@ export default function SignupPage() {
           required
           error={errors.email?.message}
           {...register("email")}
+        />
+
+        <Input
+          id="confirmEmail"
+          label="Confirm email"
+          type="email"
+          placeholder="Type your email again"
+          maxLength={100}
+          autoComplete="off"
+          required
+          error={errors.confirmEmail?.message}
+          {...register("confirmEmail")}
         />
 
         <div className="grid gap-4 sm:grid-cols-2">
