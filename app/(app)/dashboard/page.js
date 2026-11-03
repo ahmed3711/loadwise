@@ -1,14 +1,12 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { canManage, EQUIPMENT_TYPES, labelFor } from "@/lib/constants";
-import { formatDate, formatMoney, formatNumber } from "@/lib/format";
+import { canManage } from "@/lib/constants";
+import { formatNumber } from "@/lib/format";
 import PageHeader from "@/components/ui/PageHeader";
 import LinkButton from "@/components/ui/LinkButton";
-import Table from "@/components/ui/Table";
-import EmptyState from "@/components/ui/EmptyState";
 import Alert from "@/components/ui/Alert";
-import StatusBadge from "@/components/loads/StatusBadge";
+import RecentLoads from "@/components/loads/RecentLoads";
 import {
   BuildingIcon,
   TruckIcon,
@@ -29,21 +27,21 @@ export default async function DashboardPage() {
   // Ask Supabase for all the numbers at the same time.
   // "head: true" means "only count the rows, don't send them".
   // Row Level Security decides which rows each user can count.
-  const [carriers, vehicles, loads, availableLoads, recentLoads] = await Promise.all([
+  const [carriers, vehicles, loads, availableLoads, allLoads] = await Promise.all([
     supabase.from("carriers").select("*", { count: "exact", head: true }),
     supabase.from("vehicles").select("*", { count: "exact", head: true }),
     supabase.from("loads").select("*", { count: "exact", head: true }),
     supabase.from("loads").select("*", { count: "exact", head: true }).eq("status", "available"),
+    // All loads, newest first: the 5 newest are shown, and the search box searches all of them
     supabase
       .from("loads")
       .select(
-        "id, origin_city, origin_state, destination_city, destination_state, pickup_date, equipment_type, weight_lbs, rate_usd, status"
+        "id, origin_city, origin_state, destination_city, destination_state, pickup_date, equipment_type, weight_lbs, rate_usd, broker_name, broker_mc, status"
       )
-      .order("created_at", { ascending: false })
-      .limit(5),
+      .order("created_at", { ascending: false }),
   ]);
 
-  const loadError = [carriers, vehicles, loads, availableLoads, recentLoads].find((result) => result.error);
+  const loadError = [carriers, vehicles, loads, availableLoads, allLoads].find((result) => result.error);
 
   const stats = [
     { label: "Total carriers", value: carriers.count ?? 0, href: "/carriers", icon: BuildingIcon },
@@ -52,26 +50,8 @@ export default async function DashboardPage() {
     { label: "Available loads", value: availableLoads.count ?? 0, href: "/loads", icon: TargetIcon },
   ];
 
-  const recent = recentLoads.data ?? [];
   const firstName = (profile.full_name || "there").split(" ")[0];
   const isManager = canManage(profile.role);
-
-  const columns = [
-    {
-      key: "lane",
-      label: "Lane",
-      render: (load) => (
-        <span className="font-medium">
-          {load.origin_city}, {load.origin_state} → {load.destination_city}, {load.destination_state}
-        </span>
-      ),
-    },
-    { key: "pickup_date", label: "Pickup", render: (load) => formatDate(load.pickup_date) },
-    { key: "equipment_type", label: "Equipment", render: (load) => labelFor(EQUIPMENT_TYPES, load.equipment_type) },
-    { key: "weight_lbs", label: "Weight", render: (load) => `${formatNumber(load.weight_lbs)} lbs` },
-    { key: "rate_usd", label: "Rate", render: (load) => formatMoney(load.rate_usd) },
-    { key: "status", label: "Status", render: (load) => <StatusBadge status={load.status} /> },
-  ];
 
   return (
     <>
@@ -124,33 +104,8 @@ export default async function DashboardPage() {
         })}
       </div>
 
-      {/* 5 most recent loads */}
-      <section className="mt-8">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-navy">Recent loads</h2>
-          <Link
-            href="/loads"
-            className="text-sm font-semibold text-navy underline decoration-brand decoration-2 underline-offset-4 hover:text-brand"
-          >
-            View all loads →
-          </Link>
-        </div>
-
-        {recent.length === 0 ? (
-          <EmptyState
-            icon={<BoxIcon className="h-6 w-6" />}
-            title="No loads yet"
-            message={
-              isManager
-                ? "Add your first load with the form, or upload many at once with a CSV file."
-                : "Loads added by dispatchers will appear here."
-            }
-            action={isManager && <LinkButton href="/loads/new">+ Add your first load</LinkButton>}
-          />
-        ) : (
-          <Table columns={columns} rows={recent} />
-        )}
-      </section>
+      {/* Recent loads + search (searches all loads) */}
+      <RecentLoads loads={allLoads.data ?? []} isManager={isManager} />
 
       {/* Modules planned for the next milestones */}
       <section className="mt-8 rounded-2xl bg-navy p-6 text-white">
