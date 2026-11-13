@@ -157,7 +157,7 @@ export default function CarrierForm({ carrier }) {
           />
         </FormSection>
 
-        <FormSection title="Preferences" description="Used later by the matching engine to rank loads.">
+        <FormSection title="Preferences" description="Used by the matching engine to rank loads, and for weekly invoices.">
           <Input
             id="min_rate_per_mile"
             label="Minimum rate per mile (USD)"
@@ -170,6 +170,19 @@ export default function CarrierForm({ carrier }) {
             hint="Greater than 0 and at most 20, up to 2 decimals."
             error={errors.min_rate_per_mile?.message}
             {...register("min_rate_per_mile")}
+          />
+          <Input
+            id="fee_percent"
+            label="Dispatch fee (%)"
+            type="number"
+            min={0.01}
+            max={50}
+            step={0.01}
+            placeholder="e.g. 10"
+            required
+            hint="Charged on each delivered load's line-haul rate."
+            error={errors.fee_percent?.message}
+            {...register("fee_percent")}
           />
           <StatePicker register={register} name="preferred_states" error={errors.preferred_states?.message} />
         </FormSection>

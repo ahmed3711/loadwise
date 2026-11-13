@@ -98,8 +98,13 @@ export default function CarriersTable({ carriers, canEdit }) {
     },
     {
       key: "rate",
-      label: "Min / mile",
-      render: (carrier) => formatMoney(carrier.min_rate_per_mile),
+      label: "Min / mile · fee",
+      render: (carrier) => (
+        <div className="whitespace-nowrap">
+          <p>{formatMoney(carrier.min_rate_per_mile)}</p>
+          {carrier.fee_percent != null && <p className="text-xs text-slate-500">{carrier.fee_percent}% fee</p>}
+        </div>
+      ),
     },
     {
       key: "vehicles",
