@@ -159,3 +159,66 @@ export function DownloadIcon(props) {
     </Icon>
   );
 }
+
+export function SparkleIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3z" />
+      <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15z" />
+    </Icon>
+  );
+}
+
+export function BeakerIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 006 21h12a1.7 1.7 0 001.5-2.5L14 9V3" />
+      <path d="M7 15h10" />
+    </Icon>
+  );
+}
+
+export function ClipboardIcon(props) {
+  return (
+    <Icon {...props}>
+      <rect x="5" y="4" width="14" height="17" rx="2" />
+      <path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3" />
+    </Icon>
+  );
+}
+
+export function PrintIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M7 9V3h10v6" />
+      <rect x="3" y="9" width="18" height="8" rx="2" />
+      <path d="M7 14h10v7H7z" />
+    </Icon>
+  );
+}
+
+export function AlertIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M12 3l10 18H2L12 3z" />
+      <path d="M12 10v5M12 18h.01" />
+    </Icon>
+  );
+}
+
+export function CheckIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M5 12l5 5 9-10" />
+    </Icon>
+  );
+}
+
+export function MapPinIcon(props) {
+  return (
+    <Icon {...props}>
+      <path d="M12 21s-7-6.2-7-11.5A7 7 0 0119 9.5C19 14.8 12 21 12 21z" />
+      <circle cx="12" cy="9.5" r="2.5" />
+    </Icon>
+  );
+}

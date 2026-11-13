@@ -11,6 +11,10 @@
 --    (WARNING: this deletes all data in these tables)
 -- ---------------------------------------------------------------------
 drop trigger if exists on_auth_user_created on auth.users;
+-- (tables from schema-part2.sql, so a full re-run starts clean)
+drop table if exists public.bookings cascade;
+drop table if exists public.invoices cascade;
+drop table if exists public.brokers cascade;
 drop table if exists public.loads cascade;
 drop table if exists public.vehicles cascade;
 drop table if exists public.carriers cascade;
