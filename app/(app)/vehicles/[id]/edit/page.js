@@ -20,9 +20,10 @@ export default async function EditVehiclePage({ params }) {
   }
 
   const supabase = await createClient();
-  const [{ data: vehicle }, { data: carriers }] = await Promise.all([
+  const [{ data: vehicle }, { data: carriers }, { data: drivers }] = await Promise.all([
     supabase.from("vehicles").select("*").eq("id", id).maybeSingle(),
     supabase.from("carriers").select("id, company_name").order("company_name"),
+    supabase.from("profiles").select("id, full_name").eq("role", "driver").order("full_name"),
   ]);
 
   if (!vehicle) {
@@ -33,7 +34,7 @@ export default async function EditVehiclePage({ params }) {
     <div className="mx-auto max-w-3xl">
       <BackLink href="/vehicles">Back to vehicles</BackLink>
       <PageHeader title="Edit vehicle" description={`Plate ${vehicle.plate_number}`} />
-      <VehicleForm vehicle={vehicle} carriers={carriers ?? []} />
+      <VehicleForm vehicle={vehicle} carriers={carriers ?? []} drivers={drivers ?? []} />
     </div>
   );
 }

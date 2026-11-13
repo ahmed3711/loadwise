@@ -19,10 +19,11 @@ export default async function NewVehiclePage() {
 
   // Carriers for the dropdown (RLS: a dispatcher only gets their own)
   const supabase = await createClient();
-  const { data: carriers } = await supabase
-    .from("carriers")
-    .select("id, company_name")
-    .order("company_name");
+  // Drivers for the "Assigned driver" dropdown (users with the Driver role)
+  const [{ data: carriers }, { data: drivers }] = await Promise.all([
+    supabase.from("carriers").select("id, company_name").order("company_name"),
+    supabase.from("profiles").select("id, full_name").eq("role", "driver").order("full_name"),
+  ]);
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -36,7 +37,7 @@ export default async function NewVehiclePage() {
           action={<LinkButton href="/carriers/new">+ Add carrier</LinkButton>}
         />
       ) : (
-        <VehicleForm carriers={carriers} />
+        <VehicleForm carriers={carriers} drivers={drivers ?? []} />
       )}
     </div>
   );

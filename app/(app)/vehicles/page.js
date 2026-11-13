@@ -26,7 +26,7 @@ export default async function VehiclesPage({ searchParams }) {
   const [{ data: vehicles, error }, { count: carrierCount }] = await Promise.all([
     supabase
       .from("vehicles")
-      .select("*, carriers(company_name)")
+      .select("*, carriers(company_name, home_city, home_state), driver:profiles!driver_id(full_name)")
       .order("created_at", { ascending: false }),
     supabase.from("carriers").select("*", { count: "exact", head: true }),
   ]);

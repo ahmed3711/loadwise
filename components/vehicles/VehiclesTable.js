@@ -54,6 +54,8 @@ export default function VehiclesTable({ vehicles, canEdit, hasCarriers }) {
       vehicle.plate_number,
       vehicle.vin,
       vehicle.carriers?.company_name,
+      vehicle.driver?.full_name,
+      vehicle.current_city,
       labelFor(EQUIPMENT_TYPES, vehicle.equipment_type),
     ]
       .join(" ")
@@ -97,6 +99,22 @@ export default function VehiclesTable({ vehicles, canEdit, hasCarriers }) {
       render: (vehicle) => <span className="whitespace-nowrap">{formatNumber(vehicle.max_payload_lbs)} lbs</span>,
     },
     { key: "max_pallets", label: "Pallets" },
+    {
+      key: "location",
+      label: "Location / driver",
+      render: (vehicle) => (
+        <div className="whitespace-nowrap text-xs">
+          <p className="text-sm text-navy">
+            {vehicle.current_city
+              ? `${vehicle.current_city}, ${vehicle.current_state}`
+              : vehicle.carriers
+                ? `${vehicle.carriers.home_city}, ${vehicle.carriers.home_state} (home)`
+                : "—"}
+          </p>
+          <p className="text-slate-500">{vehicle.driver?.full_name ?? "No driver"}</p>
+        </div>
+      ),
+    },
   ];
 
   if (canEdit) {
