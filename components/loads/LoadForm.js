@@ -16,9 +16,28 @@ import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import LinkButton from "@/components/ui/LinkButton";
 import Alert from "@/components/ui/Alert";
+import AiPasteLoad from "./AiPasteLoad";
+
+// Form fields the AI is allowed to fill
+const AI_FIELDS = [
+  "origin_city",
+  "origin_state",
+  "destination_city",
+  "destination_state",
+  "pickup_date",
+  "delivery_date",
+  "loaded_miles",
+  "weight_lbs",
+  "pallet_count",
+  "length_ft",
+  "equipment_type",
+  "rate_usd",
+  "broker_name",
+  "broker_mc",
+];
 
 // Add / edit load form (FR-03)
-export default function LoadForm({ load }) {
+export default function LoadForm({ load, aiReady = false }) {
   const router = useRouter();
   const isEdit = Boolean(load);
   const [serverError, setServerError] = useState("");
@@ -31,6 +50,7 @@ export default function LoadForm({ load }) {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(schema),
@@ -47,6 +67,19 @@ export default function LoadForm({ load }) {
   const today = todayString();
   const pickupMin = isEdit && load.pickup_date < today ? load.pickup_date : today;
   const pickupDate = watch("pickup_date");
+
+  // Puts the AI's answer into the form, then runs the normal checks.
+  // Returns how many fields were filled.
+  function fillFromAi(parsed) {
+    let filled = 0;
+    for (const field of AI_FIELDS) {
+      const value = parsed[field];
+      if (value === null || value === undefined || value === "") continue;
+      setValue(field, String(value), { shouldValidate: true, shouldDirty: true });
+      filled += 1;
+    }
+    return filled;
+  }
 
   async function onSubmit(values) {
     setServerError("");
@@ -80,6 +113,8 @@ export default function LoadForm({ load }) {
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
         <Alert type="error">{serverError}</Alert>
         <Alert type="success">{successMessage}</Alert>
+
+        {!isEdit && <AiPasteLoad aiReady={aiReady} onFill={fillFromAi} />}
 
         <FormSection title="Route" description="Where the freight is picked up and delivered.">
           <Input
