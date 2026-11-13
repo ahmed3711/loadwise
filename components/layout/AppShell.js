@@ -13,13 +13,13 @@ export default function AppShell({ profile, children }) {
   return (
     <div className="min-h-screen">
       {/* Sidebar on desktop (always visible) */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 lg:block">
-        <Sidebar />
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 lg:block print:hidden">
+        <Sidebar role={profile.role} />
       </aside>
 
       {/* Sidebar on mobile (opens over the page) */}
       {menuOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
+        <div className="fixed inset-0 z-40 lg:hidden print:hidden">
           <div className="absolute inset-0 bg-navy/60" onClick={() => setMenuOpen(false)} />
           <aside className="absolute inset-y-0 left-0 w-64 shadow-xl">
             <button
@@ -30,14 +30,18 @@ export default function AppShell({ profile, children }) {
             >
               <CloseIcon className="h-6 w-6" />
             </button>
-            <Sidebar onNavigate={() => setMenuOpen(false)} />
+            <Sidebar role={profile.role} onNavigate={() => setMenuOpen(false)} />
           </aside>
         </div>
       )}
 
-      <div className="lg:pl-64">
-        <Topbar profile={profile} onMenuClick={() => setMenuOpen(true)} />
-        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</main>
+      <div className="lg:pl-64 print:pl-0">
+        <div className="contents print:hidden">
+          <Topbar profile={profile} onMenuClick={() => setMenuOpen(true)} />
+        </div>
+        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8 print:max-w-none print:p-0">
+          {children}
+        </main>
       </div>
     </div>
   );
