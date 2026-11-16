@@ -3,109 +3,127 @@
 import { useState } from "react";
 import { EQUIPMENT_TYPES, labelFor } from "@/lib/constants";
 import { formatDate, formatMoney, formatNumber } from "@/lib/format";
+import { explainScore } from "@/lib/matching/ranking-modes.mjs";
 import Badge from "@/components/ui/Badge";
-import Button from "@/components/ui/Button";
-import RiskBadge from "@/components/brokers/RiskBadge";
-import ScoreBar, { ScoreBreakdown } from "./ScoreBar";
-import { SparkleIcon } from "@/components/icons";
+import ScoreBar, { PART_COLORS, PART_LABELS, scoreColor } from "./ScoreBar";
+import { ArrowRightIcon, ChevronDownIcon } from "@/components/icons";
 
-const VERDICT_STYLES = {
-  recommended: { color: "green", label: "AI: recommended" },
-  consider: { color: "amber", label: "AI: consider" },
-  avoid: { color: "red", label: "AI: avoid" },
-};
-
-// One ranked load on the Matching page
-export default function RankedLoadCard({ rank, item, weights, minRate, verdict, onBook }) {
-  const [showWhy, setShowWhy] = useState(false);
-  const { load } = item;
+// One ranked load: lane, key numbers, score and "Why this score?"
+export default function RankedLoadCard({ item, rank, mode, winShare }) {
+  const [open, setOpen] = useState(false);
+  const { load, score, netRpm, deadheadMiles, emptyShare, belowMinimum, parts } = item;
+  const colors = scoreColor(score);
+  const isTop = rank === 1;
+  const preferredLane = parts.lane === 1;
 
   return (
-    <article
+    <li
       className={`rounded-2xl border bg-white p-5 shadow-sm transition ${
-        rank === 1 ? "border-brand ring-1 ring-brand/40" : "border-line"
+        isTop ? "border-brand ring-2 ring-brand/30" : "border-line"
       }`}
     >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex gap-3">
-          <span
-            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-              rank === 1 ? "bg-brand text-navy" : "bg-surface text-navy"
-            }`}
-          >
-            #{rank}
-          </span>
-          <div>
-            <p className="font-semibold text-navy">
-              {load.origin_city}, {load.origin_state} → {load.destination_city}, {load.destination_state}
-            </p>
-            <p className="text-xs text-slate-500">
-              {formatDate(load.pickup_date)} → {formatDate(load.delivery_date)} ·{" "}
-              {labelFor(EQUIPMENT_TYPES, load.equipment_type)} · {formatNumber(load.weight_lbs)} lbs ·{" "}
-              {load.pallet_count} pallets · {load.length_ft} ft
-            </p>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-              <span className="text-slate-600">
-                {load.broker_name} · MC {load.broker_mc}
-              </span>
-              <RiskBadge risk={item.brokerRisk} />
-              {verdict && (
-                <Badge color={VERDICT_STYLES[verdict.verdict]?.color ?? "slate"}>
-                  <SparkleIcon className="mr-1 h-3 w-3" />
-                  {VERDICT_STYLES[verdict.verdict]?.label ?? verdict.verdict}
-                </Badge>
-              )}
-            </div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+        {/* Rank */}
+        <div
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+            isTop ? "bg-brand text-navy" : "bg-surface text-slate-600"
+          }`}
+        >
+          #{rank}
+        </div>
+
+        {/* Lane and details */}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-base font-semibold text-navy">
+            <span>
+              {load.origin_city}, {load.origin_state}
+            </span>
+            <ArrowRightIcon className="h-4 w-4 text-slate-400" />
+            <span>
+              {load.destination_city}, {load.destination_state}
+            </span>
+            {isTop && <Badge color="amber">Best match</Badge>}
+          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            Pickup {formatDate(load.pickup_date)} · {labelFor(EQUIPMENT_TYPES, load.equipment_type)} ·{" "}
+            {formatNumber(load.weight_lbs)} lbs · {load.pallet_count} pallets · {load.broker_name}
+          </p>
+
+          {/* Key numbers */}
+          <dl className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+            <Stat label="Rate" value={formatMoney(load.rate_usd)} />
+            <Stat label="Loaded miles" value={formatNumber(load.loaded_miles)} />
+            <Stat
+              label="Empty miles"
+              value={`${formatNumber(deadheadMiles)} (${Math.round(emptyShare * 100)}%)`}
+              warn={emptyShare > 0.2}
+            />
+            <Stat label="Net rate / mile" value={`${formatMoney(netRpm)}`} warn={belowMinimum} />
+          </dl>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {preferredLane && <Badge color="green">Preferred lane both ways</Badge>}
+            {belowMinimum && <Badge color="red">Below carrier minimum</Badge>}
+            {winShare != null && (
+              <Badge color={winShare >= 0.5 ? "green" : winShare > 0 ? "blue" : "slate"}>
+                #1 in {(winShare * 100).toFixed(1)}% of weight mixes
+              </Badge>
+            )}
           </div>
         </div>
-        <ScoreBar score={item.score} size="lg" />
+
+        {/* Score */}
+        <div className="flex items-center gap-3 sm:flex-col sm:items-end">
+          <div
+            className={`flex h-16 w-16 flex-col items-center justify-center rounded-full border-4 bg-white ${colors.ring}`}
+          >
+            <span className="text-xl font-bold leading-none">{score}</span>
+            <span className="text-[10px] text-slate-400">/ 100</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setOpen((value) => !value)}
+            aria-expanded={open}
+            className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-navy"
+          >
+            Why this score?
+            <ChevronDownIcon className={`h-4 w-4 transition ${open ? "rotate-180" : ""}`} />
+          </button>
+        </div>
       </div>
 
-      <dl className="mt-4 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
-        <Metric label="Rate" value={formatMoney(load.rate_usd)} />
-        <Metric label="Loaded / empty miles" value={`${formatNumber(load.loaded_miles)} / ${formatNumber(item.deadheadMiles)}`} />
-        <Metric label="Empty miles" value={`${Math.round(item.emptyShare * 100)}%`} />
-        <Metric
-          label="Net rate per mile"
-          value={formatMoney(item.netRpm)}
-          warning={item.belowMinimum ? `Below minimum ${formatMoney(minRate)}` : null}
-        />
-      </dl>
-
-      {verdict && (
-        <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm text-navy">
-          <SparkleIcon className="mr-1 inline h-4 w-4 align-text-bottom" />
-          {verdict.reason}
-        </p>
-      )}
-
-      {showWhy && (
-        <div className="mt-4 rounded-xl border border-line p-4">
-          <ScoreBreakdown components={item.components} weights={weights} />
+      {/* Score breakdown: points = part (0-1) x weight */}
+      {open && (
+        <div className="mt-4 rounded-xl bg-surface p-4">
+          <p className="mb-3 text-xs text-slate-500">
+            Ranking mode <span className="font-semibold text-navy">{mode.name}</span>: each part scores 0 to 1 and
+            is multiplied by its weight.
+          </p>
+          <ul className="space-y-2.5">
+            {explainScore(parts, mode.weights).map((row) => (
+              <li key={row.part} className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 text-sm">
+                <span className="text-navy">{PART_LABELS[row.part]}</span>
+                <span className="text-right font-mono text-xs text-slate-600">
+                  {row.value.toFixed(2)} × {row.weight} = <span className="font-semibold text-navy">{row.points}</span>
+                </span>
+                <ScoreBar value={row.value} color={PART_COLORS[row.part]} className="col-span-2 bg-white" />
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 border-t border-line pt-2 text-right text-sm font-semibold text-navy">
+            Total: {score} / 100
+          </p>
         </div>
       )}
-
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4">
-        <button
-          type="button"
-          onClick={() => setShowWhy((value) => !value)}
-          className="text-sm font-medium text-slate-500 transition hover:text-navy"
-          aria-expanded={showWhy}
-        >
-          {showWhy ? "Hide score details" : "Why this score?"}
-        </button>
-        <Button onClick={onBook}>Book this load</Button>
-      </div>
-    </article>
+    </li>
   );
 }
 
-function Metric({ label, value, warning }) {
+function Stat({ label, value, warn = false }) {
   return (
-    <div className="rounded-xl bg-surface px-3 py-2">
-      <dt className="text-xs text-slate-500">{label}</dt>
-      <dd className={`font-semibold ${warning ? "text-red-600" : "text-navy"}`}>{value}</dd>
-      {warning && <dd className="text-[11px] font-medium text-red-600">{warning}</dd>}
+    <div>
+      <dt className="text-[11px] uppercase tracking-wide text-slate-400">{label}</dt>
+      <dd className={`font-semibold ${warn ? "text-red-600" : "text-navy"}`}>{value}</dd>
     </div>
   );
 }

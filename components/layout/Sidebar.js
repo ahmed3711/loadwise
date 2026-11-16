@@ -18,11 +18,11 @@ const MENU = [
   { href: "/carriers", label: "Carriers", icon: BuildingIcon },
   { href: "/vehicles", label: "Vehicles", icon: TruckIcon },
   { href: "/loads", label: "Loads", icon: BoxIcon },
+  { href: "/matching", label: "Load Matching", icon: TargetIcon },
 ];
 
 // Modules planned for later milestones (shown greyed out)
 const COMING_SOON = [
-  { label: "Matching", icon: TargetIcon },
   { label: "Broker Check", icon: ShieldIcon },
   { label: "Invoices", icon: InvoiceIcon },
 ];
@@ -92,7 +92,7 @@ export default function Sidebar({ onNavigate }) {
       </nav>
 
       <div className="border-t border-white/10 px-5 py-4 text-xs text-slate-500">
-        LoadWise · Milestone 1
+        LoadWise · Milestone 2
       </div>
     </div>
   );

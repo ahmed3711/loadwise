@@ -16,6 +16,8 @@ import {
   InvoiceIcon,
   PlusIcon,
   UploadIcon,
+  ArrowRightIcon,
+  DashboardIcon,
 } from "@/components/icons";
 
 export const metadata = { title: "Dashboard" };
@@ -47,7 +49,7 @@ export default async function DashboardPage() {
     { label: "Total carriers", value: carriers.count ?? 0, href: "/carriers", icon: BuildingIcon },
     { label: "Total vehicles", value: vehicles.count ?? 0, href: "/vehicles", icon: TruckIcon },
     { label: "Total loads", value: loads.count ?? 0, href: "/loads", icon: BoxIcon },
-    { label: "Available loads", value: availableLoads.count ?? 0, href: "/loads", icon: TargetIcon },
+    { label: "Available loads", value: availableLoads.count ?? 0, href: "/matching", icon: TargetIcon },
   ];
 
   const firstName = (profile.full_name || "there").split(" ")[0];
@@ -107,17 +109,32 @@ export default async function DashboardPage() {
       {/* Recent loads + search (searches all loads) */}
       <RecentLoads loads={allLoads.data ?? []} isManager={isManager} />
 
-      {/* Modules planned for the next milestones */}
+      {/* New in this milestone + modules planned next */}
       <section className="mt-8 rounded-2xl bg-navy p-6 text-white">
-        <h2 className="text-lg font-semibold">Coming in the next milestones</h2>
-        <p className="mt-1 text-sm text-slate-300">
-          These modules build on the carrier, vehicle and load data you enter now.
-        </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand text-navy">
+              <TargetIcon className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-brand">New</p>
+              <h2 className="text-lg font-semibold">Load Matching</h2>
+              <p className="mt-1 text-sm text-slate-300">
+                Pick a vehicle: loads that don&apos;t fit are filtered out, the rest are ranked 0–100 by real profit.
+              </p>
+            </div>
+          </div>
+          <LinkButton href="/matching" className="shrink-0">
+            Match loads <ArrowRightIcon className="h-4 w-4" />
+          </LinkButton>
+        </div>
+
+        <p className="mt-6 text-xs font-semibold uppercase tracking-widest text-slate-400">Coming next</p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
           {[
-            { icon: TargetIcon, title: "Matching engine", text: "Fit check and 0–100 profit score for every load" },
             { icon: ShieldIcon, title: "Broker risk check", text: "FMCSA authority lookup and risk flags" },
             { icon: InvoiceIcon, title: "Booking & invoicing", text: "Status tracking and weekly invoices" },
+            { icon: DashboardIcon, title: "Weekly metrics", text: "Revenue, net rate per mile and empty-mile % per carrier" },
           ].map((item) => {
             const Icon = item.icon;
             return (

@@ -1,53 +1,26 @@
-// Score from 0 to 100 shown as a number and a bar (FR-08)
-export function scoreColor(score) {
-  if (score >= 70) return "bg-green-500";
-  if (score >= 45) return "bg-brand";
-  return "bg-red-400";
-}
-
-export default function ScoreBar({ score, size = "md" }) {
-  const width = Math.max(0, Math.min(100, score));
+// Thin progress bar, value from 0 to 1
+export default function ScoreBar({ value, color = "bg-brand", className = "" }) {
+  const percent = Math.round(Math.min(1, Math.max(0, value)) * 100);
   return (
-    <div className={size === "lg" ? "w-32" : "w-24"}>
-      <div className="flex items-baseline justify-between">
-        <span className={`font-bold text-navy ${size === "lg" ? "text-2xl" : "text-lg"}`}>{score}</span>
-        <span className="text-xs text-slate-400">/ 100</span>
-      </div>
-      <div className="mt-1 h-2 overflow-hidden rounded-full bg-surface" aria-hidden="true">
-        <div className={`h-full rounded-full ${scoreColor(score)}`} style={{ width: `${width}%` }} />
-      </div>
+    <div className={`h-2 w-full overflow-hidden rounded-full bg-surface ${className}`}>
+      <div className={`h-full rounded-full ${color} transition-all duration-300`} style={{ width: `${percent}%` }} />
     </div>
   );
 }
 
-// The four parts of the score, each as a small labelled bar
-export function ScoreBreakdown({ components, weights }) {
-  const parts = [
-    { key: "rpm", label: "Net rate/mile" },
-    { key: "deadhead", label: "Low empty miles" },
-    { key: "lane", label: "Preferred lane" },
-    { key: "broker", label: "Broker trust" },
-  ];
-
-  return (
-    <dl className="grid gap-2 sm:grid-cols-2">
-      {parts.map((part) => {
-        const value = components[part.key] ?? 0;
-        const points = Math.round(value * (weights[part.key] ?? 0));
-        return (
-          <div key={part.key}>
-            <div className="flex justify-between text-xs">
-              <dt className="text-slate-500">{part.label}</dt>
-              <dd className="font-semibold text-navy">
-                {points} / {weights[part.key]} pts
-              </dd>
-            </div>
-            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-surface" aria-hidden="true">
-              <div className="h-full rounded-full bg-navy" style={{ width: `${Math.round(value * 100)}%` }} />
-            </div>
-          </div>
-        );
-      })}
-    </dl>
-  );
+// Colour for a 0-100 score
+export function scoreColor(score) {
+  if (score >= 75) return { ring: "border-green-500 text-green-700", bar: "bg-green-500" };
+  if (score >= 50) return { ring: "border-brand text-navy", bar: "bg-brand" };
+  return { ring: "border-slate-300 text-slate-500", bar: "bg-slate-400" };
 }
+
+export const PART_LABELS = {
+  rpm: "Net rate per mile",
+  deadhead: "Low empty miles",
+  lane: "Preferred lanes",
+};
+
+// Short names, with the same colours as the ranking mode weight bar
+export const SHORT_LABELS = { rpm: "Rate", deadhead: "Empty miles", lane: "Lanes" };
+export const PART_COLORS = { rpm: "bg-navy", deadhead: "bg-brand", lane: "bg-slate-300" };
