@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  // The worker threads load these files from disk at run time, so they
+  // must be included when the API routes are uploaded to Vercel
+  outputFileTracingIncludes: {
+    "/api/matching/stability": ["./workers/**/*", "./lib/matching/stability.mjs"],
+    "/api/threads/race": ["./workers/**/*", "./lib/matching/stability.mjs"],
+  },
   turbopack: {
     rules: {
       "*.css": {
@@ -8,11 +13,6 @@ const nextConfig = {
         as: "*.css",
       },
     },
-  },
-  // The Weight Lab starts worker threads from files on disk, so make sure
-  // those files are copied into the server bundle when deploying (Vercel).
-  outputFileTracingIncludes: {
-    "/api/matching/weight-lab": ["./workers/**/*", "./lib/matching/scoring.mjs"],
   },
 };
 
